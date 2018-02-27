@@ -1,0 +1,14 @@
+{
+  "name": "ttlhandler",
+  "version": "1.0.0",
+  "description": "webjob that accesses cosmosdb and modifies documents with a ttl",
+  "main": "run.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alex Nguyen",
+  "license": "ISC",
+  "dependencies": {
+    "documentdb": "^1.14.2"
+  }
+}
