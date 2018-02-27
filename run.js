@@ -16,7 +16,6 @@ var host = config.host;
 var masterKey = config.masterKey;
 
 var client = new DocumentDBClient( host, { masterKey: masterKey });
-var documentDefinitions;
 
 var newDoc = {
   "internal_id": internalIdToChange,
@@ -27,12 +26,16 @@ init(function (err) {
   if (!err) {
     dbLink = 'dbs/' + databaseId;
     collLink = dbLink + '/colls/' + collectionId;
+    console.log("Getting document");
     getDocument(internalIdToChange, collLink, function(doc) {
+      console.log(JSON.stringify(doc));
       if (doc) {
+        console.log("About to try replace: " +JSON.stringify(doc));
         //existing record for this internal_id - replace it with new ttl
         newDoc['id'] = doc['id'];
         client.replaceDocument(doc['_self'], newDoc, function(err, replaced) {
           if (err) {
+            console.log("Error in replacing document");
             console.log(err);
           } else {
             console.log("Replaced ttl record:" + JSON.stringify(replaced));
@@ -41,8 +44,10 @@ init(function (err) {
 
       } else {
         // no current record for this internal_id
+        console.log("About to try create: " +JSON.stringify(newDoc));
         client.createDocument(collLink, newDoc, function (err, created) {
           if (err) {
+            console.log("Error in creating document");
             console.log(err);
           } else {
             console.log("Created ttl record:" + JSON.stringify(created));
@@ -66,7 +71,7 @@ function init(callback) {
 
 function getDocument(internalId, collLink, callback) {
   var querySpec = {
-    query: 'SELECT * FROM root r WHERE r.id=@id',
+    query: 'SELECT * FROM root r WHERE r.internal_id=@id',
     parameters: [
       {
         name: '@id',
@@ -86,8 +91,9 @@ function getDocument(internalId, collLink, callback) {
       if (docs.length > 1) {
         throw Error("Multiple records for this ID in ttl collection");
       } else {callback(docs[0]);}
+    } else {
+      callback(null);
     }
-    callback(null);
   });
 }
 
